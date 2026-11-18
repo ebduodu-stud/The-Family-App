@@ -86,7 +86,7 @@ function bibleLinks(ref){
 }
 function jwDailyUrl(s){let date=s.replaceAll('-','');return `https://www.jw.org/finder?srcid=jwlshare&alias=daily-text&date=${date}&wtlocale=TW`}
 function jwPublicationUrl(reading){
- const m=String(reading||'').match(/Ch\\.\\s*(\\d+)/i);
+ const m=String(reading||'').match(/Ch[.]\\s*(\\d+)/i);
  const chapter=m?Number(m[1]):1;
  const pageId=1102014930+chapter;
  return 'https://wol.jw.org/en/wol/d/r1/lp-e/'+pageId;
