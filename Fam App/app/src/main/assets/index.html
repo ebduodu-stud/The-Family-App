@@ -56,13 +56,22 @@ select{color:var(--ink)}
 .assignment-card .sectiontitle{margin:5px 0 13px}
 @media(max-width:430px){.daynav{grid-template-columns:40px minmax(0,1fr) 40px;padding:11px 10px}.daynav .dayarrow{width:38px;height:40px}.daynav .datepill{font-size:18px}.daynav .todaylink{font-size:12px}}
 
+
+/* Compact single-line date navigator */
+.daynav{display:grid;grid-template-columns:42px minmax(0,1fr) 42px;align-items:center;gap:8px;flex-wrap:nowrap;justify-content:stretch;margin:0 0 16px;padding:12px 10px;background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 4px 14px #17324d0a}
+.daynav .dayarrow{flex:none;width:40px;height:40px;border:0;border-radius:12px;background:#f1f5f7;color:var(--navy);font-size:26px;line-height:1;display:grid;place-items:center}
+.daynav .datepill{min-width:0;flex:none;text-align:center;font-size:clamp(13px,3.7vw,17px);font-weight:800;line-height:1.3;color:var(--navy);margin:0;padding:0;white-space:nowrap}
+.daycenter{display:contents}
+.assignment-card .sectiontitle{margin:5px 0 13px}
+@media(max-width:380px){.daynav{grid-template-columns:34px minmax(0,1fr) 34px;gap:4px;padding:10px 6px}.daynav .dayarrow{width:32px;height:36px}.daynav .datepill{font-size:12px}}
+
 </style></head><body>
 <main class="wrap">
 <section id="home" class="screen active">
  <header class="top"><div class="hero-inner"><span class="hero-kicker">OUR FAMILY • OUR WORSHIP</span><h1>Morning Worship Arrangement</h1><p>Preparing together, one day at a time.</p></div></header>
- <div class="daynav"><button class="dayarrow" id="prevDay" aria-label="Previous day">‹</button><div class="daycenter"><div class="datepill" id="navDate">Today</div><button class="todaylink" id="todayDay">Today</button></div><button class="dayarrow" id="nextDay" aria-label="Next day">›</button></div>
+ <div class="daynav"><button class="dayarrow" id="prevDay" aria-label="Previous day">‹</button><div class="datepill" id="navDate">Wednesday, November 18, 2026</div><button class="dayarrow" id="nextDay" aria-label="Next day">›</button></div>
  <div class="card daily"><div class="dailyhead"><div><div class="eyebrow">DAILY TEXT</div><h2>Daily Text</h2></div><a id="dailyReferenceLink" href="#" target="_blank" rel="noopener">Read today’s text ↗</a></div><a class="fallback" id="dailyFallback" href="#" target="_blank" rel="noopener">Open in Watchtower ONLINE LIBRARY instead</a></div>
- <div class="card assignment-card"><div class="eyebrow">FAMILY ARRANGEMENT</div><h2 class="sectiontitle">Today’s assignments</h2><div id="homeRoles" class="gridroles"></div><div class="reading"><h3>Bible reading</h3><p id="homeBible">No assigned Bible reading.</p><div id="bibleReaderLine" class="muted" style="margin-top:7px"></div><a class="fallback" id="bibleFallback" href="#" target="_blank" rel="noopener">Open this reference in the online library instead</a></div><div id="publicationBox" class="reading" style="display:none"><h3>Publication reading</h3><p class="muted" style="margin:0 0 7px">Organized to Do Jehovah’s Will</p><p id="publicationText"></p><a class="fallback" id="publicationLink" href="#" target="_blank" rel="noopener">Open related publication</a></div></div>
+ <div class="card assignment-card"><h2 class="sectiontitle">Today’s assignments</h2><div id="homeRoles" class="gridroles"></div><div class="reading"><h3>Bible reading</h3><p id="homeBible">No assigned Bible reading.</p><div id="bibleReaderLine" class="muted" style="margin-top:7px"></div><a class="fallback" id="bibleFallback" href="#" target="_blank" rel="noopener">Open this reference in the online library instead</a></div><div id="publicationBox" class="reading" style="display:none"><h3>Publication reading</h3><p class="muted" style="margin:0 0 7px">Organized to Do Jehovah’s Will</p><p id="publicationText"></p><a class="fallback" id="publicationLink" href="#" target="_blank" rel="noopener">Open related publication</a></div></div>
 </section>
 <section id="files" class="screen"><div class="card"><div class="eyebrow">Your source documents</div><h2 class="sectiontitle">Schedule Files</h2><p class="muted file-note">Each schedule file covers a three-month period. The daily assignments shown on the Home screen are taken from these schedule files.</p>
 <a class="filecard" href="#" onclick="downloadSchedule('Schedule_Nov2026-Jan2027.pdf');return false"><span class="fileicon">PDF</span><span><b>November 2026 – January 2027</b><small>Three-month schedule file · Tap to save PDF</small></span></a>
@@ -114,7 +123,13 @@ function jwPublicationUrl(reading, person){
  return 'https://www.jw.org/finder?srcid=jwlshare&wtlocale=TW&prefer=lang&docid='+docid;
 }
 function downloadSchedule(name){if(window.Android&&Android.saveScheduleFile){Android.saveScheduleFile(name)}else{alert('Schedule file download is available in the Android app.')}}
-function go(id){document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.screen===id));if(id==='people')renderMember()}
+function go(id){
+ const alreadyHome=id==='home'&&$('home').classList.contains('active');
+ document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id===id));
+ document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.screen===id));
+ if(id==='people')renderMember();
+ if(alreadyHome){const t=localISO(new Date());updateHome(day(t)?t:DATA.days[0].date)}
+}
 function updateHome(s){let d=day(s)||DATA.days[0];chosen=d.date;let w=wolUrl(d.date);$('dailyReferenceLink').href=jwDailyUrl(d.date);$('dailyFallback').href=w;$('navDate').textContent=names[d.day]+', '+fmt(d.date);$('homeRoles').innerHTML=`<div class="role"><label>CONDUCTOR</label><b>${esc(d.conductor||'—')}</b></div><div class="role"><label>DAILY TEXT READER</label><b>${esc(d.dailyTextReader||'—')}</b></div><div class="role"><label>COMMENTER</label><b>${esc(d.commenter||'—')}</b></div><div class="role"><label>BIBLE READER</label><b>${esc(d.bibleReader||'—')}</b></div>`;if(d.bibleReading&&jwBibleUrl(d.bibleReading)){$('homeBible').innerHTML=bibleLinks(d.bibleReading);$('bibleReaderLine').textContent='Reader: '+(d.bibleReader||'Not assigned');$('bibleFallback').href='https://wol.jw.org/tw/wol/s/r33/lp-tw?q='+encodeURIComponent(d.bibleReading);$('bibleFallback').style.display='inline-block'}else if(d.bibleReading){$('homeBible').textContent=d.bibleReading;$('bibleReaderLine').textContent='';$('bibleFallback').style.display='none'}else{$('homeBible').textContent='No assigned Bible reading for this day.';$('bibleReaderLine').textContent='';$('bibleFallback').style.display='none'}if(d.publicationReading){$('publicationBox').style.display='block';$('publicationText').innerHTML=`<a class="reference" href="${jwPublicationUrl(d.publicationReading)}" target="_blank" rel="noopener">${esc(d.publicationReading)}</a>`;$('publicationLink').href=jwPublicationUrl(d.publicationReading)}else{$('publicationBox').style.display='none'}}
 function moveDay(n){let i=DATA.days.findIndex(d=>d.date===chosen),next=DATA.days[i+n];if(next)updateHome(next.date)}
 function localISO(x){let y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),d=String(x.getDate()).padStart(2,'0');return y+'-'+m+'-'+d}
@@ -147,7 +162,7 @@ let today=localISO(new Date()),initial=day(today)||DATA.days[0];updateHome(initi
 const savedProfile=localStorage.getItem('familyMorningProfile')||'';
 if(DATA.members.includes(savedProfile)){$('member').value=savedProfile;renderMember()}else{$('profileGate').style.display='flex'}
 $('saveProfile').onclick=()=>{const n=$('firstProfile').value;if(!n){alert('Please choose your name first.');return}localStorage.setItem('familyMorningProfile',n);$('member').value=n;$('profileGate').style.display='none';renderMember();syncReadingReminders()};
-$('prevDay').onclick=()=>moveDay(-1);$('nextDay').onclick=()=>moveDay(1);$('todayDay').onclick=()=>{const t=localISO(new Date());updateHome(day(t)?t:DATA.days[0].date)};
+$('prevDay').onclick=()=>moveDay(-1);$('nextDay').onclick=()=>moveDay(1);
 $('member').onchange=()=>{if($('member').value)localStorage.setItem('familyMorningProfile',$('member').value);renderMember();syncReadingReminders()};
 function syncReadingReminders(){
  const profile=localStorage.getItem('familyMorningProfile')||'';
