@@ -1,0 +1,20 @@
+{
+  "id": "/The-Family-App/",
+  "name": "Family Morning Worship",
+  "short_name": "Family Worship",
+  "description": "A family schedule companion for daily worship assignments.",
+  "start_url": "/The-Family-App/",
+  "scope": "/The-Family-App/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080808",
+  "theme_color": "#080808",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
