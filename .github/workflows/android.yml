@@ -1,4 +1,3 @@
-
 name: Build Family Morning Worship APK
 
 on:
@@ -25,13 +24,36 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build APK
-        run: gradle assembleDebug --no-daemon
+      - name: Prepare release signing key
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_BASE64" || { echo "Missing ANDROID_KEYSTORE_BASE64 secret"; exit 1; }
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$RUNNER_TEMP/family-worship-release.jks"
+          test -s "$RUNNER_TEMP/family-worship-release.jks"
+
+      - name: Build signed release APK
+        env:
+          ANDROID_KEYSTORE_PATH: ${{ runner.temp }}/family-worship-release.jks
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          test -n "$ANDROID_KEYSTORE_PASSWORD" || { echo "Missing ANDROID_KEYSTORE_PASSWORD secret"; exit 1; }
+          test -n "$ANDROID_KEY_ALIAS" || { echo "Missing ANDROID_KEY_ALIAS secret"; exit 1; }
+          test -n "$ANDROID_KEY_PASSWORD" || { echo "Missing ANDROID_KEY_PASSWORD secret"; exit 1; }
+          gradle assembleRelease --no-daemon
         working-directory: 'Fam App'
 
-      - name: Upload APK
+      - name: Verify APK signature
+        run: |
+          APK="Fam App/app/build/outputs/apk/release/app-release.apk"
+          test -f "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose --print-certs "$APK"
+
+      - name: Upload signed release APK
         uses: actions/upload-artifact@v4
         with:
-          name: Family-Morning-Worship-APK
-          path: Fam App/app/build/outputs/apk/debug/*.apk
+          name: Family-Morning-Worship-Release-APK
+          path: Fam App/app/build/outputs/apk/release/*.apk
           if-no-files-found: error
