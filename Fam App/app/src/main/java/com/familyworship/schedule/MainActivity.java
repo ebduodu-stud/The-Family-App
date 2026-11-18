@@ -14,6 +14,9 @@ import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.content.ContentValues;
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.Manifest;
 import android.widget.Toast;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,11 +24,14 @@ import java.io.OutputStream;
 public class MainActivity extends Activity {
     private static final String APP_URL = "https://ebduodu-stud.github.io/The-Family-App/";
     private static final String APP_HOST = "ebduodu-stud.github.io";
+    private static final int NOTIFICATION_PERMISSION_REQUEST = 2401;
     WebView web;
     private boolean localFallbackLoaded = false;
+    private boolean pendingReminderSetup = false;
 
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
+        ReminderReceiver.createChannel(this);
         web = new WebView(this);
         WebSettings settings = web.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -65,6 +71,29 @@ public class MainActivity extends Activity {
         catch (Exception e) { Toast.makeText(MainActivity.this, "No app found to open this link.", Toast.LENGTH_SHORT).show(); }
     }
 
+    private void requestOrScheduleReminders() {
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            pendingReminderSetup = true;
+            requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST);
+        } else {
+            ReminderReceiver.scheduleNext(this);
+            Toast.makeText(this, "Your 3:00 a.m. reading reminders are set for this profile.", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    @Override public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == NOTIFICATION_PERMISSION_REQUEST && pendingReminderSetup) {
+            pendingReminderSetup = false;
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                ReminderReceiver.scheduleNext(this);
+                Toast.makeText(this, "Your 3:00 a.m. reading reminders are enabled.", Toast.LENGTH_LONG).show();
+            } else {
+                Toast.makeText(this, "Notifications are off. You can enable them in Android Settings.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     private class ScheduleBridge {
         @JavascriptInterface public void saveScheduleFile(String name) {
             runOnUiThread(() -> Toast.makeText(MainActivity.this, "Saving " + name + "…", Toast.LENGTH_SHORT).show());
@@ -86,6 +115,12 @@ public class MainActivity extends Activity {
                     runOnUiThread(() -> Toast.makeText(MainActivity.this, "Could not save the PDF. Please try again.", Toast.LENGTH_LONG).show());
                 }
             }).start();
+        }
+
+        @JavascriptInterface public void setReadingReminders(String profile, String scheduleJson) {
+            SharedPreferences prefs = getSharedPreferences(ReminderReceiver.PREFS, MODE_PRIVATE);
+            prefs.edit().putString("profile", profile).putString("schedule", scheduleJson).apply();
+            runOnUiThread(() -> requestOrScheduleReminders());
         }
     }
 
