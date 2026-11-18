@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -40,14 +41,17 @@ public class ReminderReceiver extends BroadcastReceiver {
         if (profile.isEmpty()) return;
         try {
             JSONArray entries = new JSONArray(raw);
-            String today = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
-            Calendar now = Calendar.getInstance();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+            TimeZone ghana = TimeZone.getTimeZone("Africa/Accra");
+            dateFormat.setTimeZone(ghana);
+            String today = dateFormat.format(new Date());
+            Calendar now = Calendar.getInstance(ghana);
             JSONObject next = null;
             for (int i = 0; i < entries.length(); i++) {
                 JSONObject item = entries.getJSONObject(i);
                 String date = item.optString("date", "");
                 if (date.compareTo(today) < 0) continue;
-                Calendar alarm = Calendar.getInstance();
+                Calendar alarm = Calendar.getInstance(ghana);
                 String[] bits = date.split("-");
                 alarm.set(Integer.parseInt(bits[0]), Integer.parseInt(bits[1]) - 1, Integer.parseInt(bits[2]), 3, 0, 0);
                 alarm.set(Calendar.MILLISECOND, 0);
@@ -77,7 +81,9 @@ public class ReminderReceiver extends BroadcastReceiver {
         }
         SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String profile = prefs.getString("profile", "");
-        String today = new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("Africa/Accra"));
+        String today = dateFormat.format(new Date());
         try {
             JSONArray entries = new JSONArray(prefs.getString("schedule", "[]"));
             for (int i = 0; i < entries.length(); i++) {
