@@ -6,6 +6,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceRequest;
+import android.webkit.WebSettings;
 import android.webkit.JavascriptInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -18,33 +19,52 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class MainActivity extends Activity {
+    private static final String APP_URL = "https://ebduodu-stud.github.io/The-Family-App/";
+    private static final String APP_HOST = "ebduodu-stud.github.io";
     WebView web;
+    private boolean localFallbackLoaded = false;
+
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
         web = new WebView(this);
-        web.getSettings().setJavaScriptEnabled(true);
-        web.getSettings().setDomStorageEnabled(true);
+        WebSettings settings = web.getSettings();
+        settings.setJavaScriptEnabled(true);
+        settings.setDomStorageEnabled(true);
+        settings.setCacheMode(WebSettings.LOAD_DEFAULT);
         web.addJavascriptInterface(new ScheduleBridge(), "Android");
         web.setWebViewClient(new WebViewClient() {
             @Override public boolean shouldOverrideUrlLoading(WebView v, WebResourceRequest request) {
                 if (!request.isForMainFrame()) return false;
-                String u = request.getUrl().toString();
-                if (u.startsWith("file:///android_asset/")) return false;
-                try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(u))); }
-                catch (Exception e) { Toast.makeText(MainActivity.this, "No app found to open this link.", Toast.LENGTH_SHORT).show(); }
+                Uri uri = request.getUrl();
+                if (APP_HOST.equals(uri.getHost()) && uri.getPath() != null && uri.getPath().startsWith("/The-Family-App/")) return false;
+                openExternal(uri.toString());
                 return true;
             }
-            @Override public boolean shouldOverrideUrlLoading(WebView v, String u) {
-                if (u.startsWith("file:///android_asset/")) return false;
-                try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(u))); }
-                catch (Exception e) { Toast.makeText(MainActivity.this, "No app found to open this link.", Toast.LENGTH_SHORT).show(); }
+            @Override public boolean shouldOverrideUrlLoading(WebView v, String url) {
+                Uri uri = Uri.parse(url);
+                if (APP_HOST.equals(uri.getHost()) && uri.getPath() != null && uri.getPath().startsWith("/The-Family-App/")) return false;
+                if (url.startsWith("file:///android_asset/")) return false;
+                openExternal(url);
                 return true;
+            }
+            @Override public void onReceivedError(WebView view, WebResourceRequest request, android.webkit.WebResourceError error) {
+                if (request.isForMainFrame() && !localFallbackLoaded) {
+                    localFallbackLoaded = true;
+                    view.loadUrl("file:///android_asset/index.html");
+                    Toast.makeText(MainActivity.this, "Offline mode: showing the built-in copy. Connect to the internet to receive updates.", Toast.LENGTH_LONG).show();
+                }
             }
         });
         web.setWebChromeClient(new WebChromeClient());
         setContentView(web);
-        web.loadUrl("file:///android_asset/index.html");
+        web.loadUrl(APP_URL);
     }
+
+    private void openExternal(String url) {
+        try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); }
+        catch (Exception e) { Toast.makeText(MainActivity.this, "No app found to open this link.", Toast.LENGTH_SHORT).show(); }
+    }
+
     private class ScheduleBridge {
         @JavascriptInterface public void saveScheduleFile(String name) {
             runOnUiThread(() -> Toast.makeText(MainActivity.this, "Saving " + name + "…", Toast.LENGTH_SHORT).show());
@@ -68,5 +88,9 @@ public class MainActivity extends Activity {
             }).start();
         }
     }
-    @Override public void onBackPressed() { if (web != null && web.canGoBack()) web.goBack(); else super.onBackPressed(); }
+
+    @Override public void onBackPressed() {
+        if (web != null && web.canGoBack()) web.goBack();
+        else super.onBackPressed();
+    }
 }
