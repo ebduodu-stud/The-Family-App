@@ -1,4 +1,4 @@
-const CACHE='family-morning-worship-v2';
+const CACHE='family-morning-worship-v3';
 const CORE=['./','./index.html','./manifest.webmanifest','./icon.svg'];
 const SCHEDULE=[
 './Fam%20App/app/src/main/assets/schedule/Schedule_Nov2026-Jan2027.pdf',
