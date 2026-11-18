@@ -133,8 +133,25 @@ DATA.members.forEach(n=>{$('member').add(new Option(n,n));$('firstProfile').add(
 let today=localISO(new Date()),initial=day(today)||DATA.days[0];updateHome(initial.date);
 const savedProfile=localStorage.getItem('familyMorningProfile')||'';
 if(DATA.members.includes(savedProfile)){$('member').value=savedProfile;renderMember()}else{$('profileGate').style.display='flex'}
-$('saveProfile').onclick=()=>{const n=$('firstProfile').value;if(!n){alert('Please choose your name first.');return}localStorage.setItem('familyMorningProfile',n);$('member').value=n;$('profileGate').style.display='none';renderMember()};
+$('saveProfile').onclick=()=>{const n=$('firstProfile').value;if(!n){alert('Please choose your name first.');return}localStorage.setItem('familyMorningProfile',n);$('member').value=n;$('profileGate').style.display='none';renderMember();syncReadingReminders()};
 $('prevDay').onclick=()=>moveDay(-1);$('nextDay').onclick=()=>moveDay(1);$('todayDay').onclick=()=>{const t=localISO(new Date());updateHome(day(t)?t:DATA.days[0].date)};
-$('member').onchange=()=>{if($('member').value)localStorage.setItem('familyMorningProfile',$('member').value);renderMember()};
+$('member').onchange=()=>{if($('member').value)localStorage.setItem('familyMorningProfile',$('member').value);renderMember();syncReadingReminders()};
+function syncReadingReminders(){
+ const profile=localStorage.getItem('familyMorningProfile')||'';
+ if(!profile||!window.Android||!Android.setReadingReminders)return;
+ const today=localISO(new Date());
+ const upcoming=DATA.days.filter(d=>d.date>=today).map(d=>{
+  const parts=[];
+  if(d.dailyTextReader===profile)parts.push('Daily text reading');
+  if(d.bibleReader===profile&&d.bibleReading)parts.push('Bible reading: '+d.bibleReading);
+  if(d.publicationReading){
+   const segment=d.publicationReading.split(';').map(x=>x.trim()).find(x=>x.startsWith(profile+' —')||x.startsWith(profile+' –')||x.startsWith(profile+' -'));
+   if(segment)parts.push('Publication reading: '+segment.replace(profile,'').replace(/^[\s—–-]+/,''));
+  }
+  return parts.length?{date:d.date,parts:parts.join(' · ')}:null;
+ }).filter(Boolean);
+ Android.setReadingReminders(profile,JSON.stringify(upcoming));
+}
+syncReadingReminders();
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
 </script></body></html>
