@@ -86,25 +86,20 @@ function bibleLinks(ref){
 }
 function jwDailyUrl(s){let date=s.replaceAll('-','');return `https://www.jw.org/finder?srcid=jwlshare&alias=daily-text&date=${date}&wtlocale=TW`}
 function jwPublicationUrl(reading, person){
-  const source=String(reading||'');
-  const chapterMatch=source.match(/Ch[.] *([0-9]+)/i);
-  const chapter=chapterMatch?Number(chapterMatch[1]):1;
-  const docid=1102014930+chapter;
-  let paragraph=null;
-  if(person){
-   const escaped=person.replace(/[.*+?^${}()|[\]\\]/g,'\\function jwPublicationUrl(reading){
- const m=String(reading||'').match(/Ch[.] *([0-9]+)/i);
- const chapter=m?Number(m[1]):1;
- const pageId=1102014930+chapter;
- return 'https://wol.jw.org/en/wol/d/r1/lp-e/'+pageId;
- }');
-   const match=source.match(new RegExp('(?:^|;\\s*)'+escaped+'\\s*[—–-]\\s*¶?\\s*(\\d+)','i'));
-   if(match) paragraph=Number(match[1])+3;
-  }
-  let url='https://www.jw.org/finder?srcid=jwlshare&wtlocale=TW&prefer=lang&docid='+docid;
-  if(paragraph!==null) url+='&par='+paragraph;
-  return url;
+ const source=String(reading||'');
+ const chapterMatch=source.match(/Ch[.] *([0-9]+)/i);
+ const chapter=chapterMatch?Number(chapterMatch[1]):1;
+ const docid=1102014930+chapter;
+ let paragraph=null;
+ if(person){
+  const segment=source.split(';').map(x=>x.trim()).find(x=>x.startsWith(person+' —')||x.startsWith(person+' –')||x.startsWith(person+' -'));
+  const match=segment&&segment.match(/¶\\s*(\\d+)/);
+  if(match) paragraph=Number(match[1])+3;
  }
+ let url='https://www.jw.org/finder?srcid=jwlshare&wtlocale=TW&prefer=lang&docid='+docid;
+ if(paragraph!==null) url+='&par='+paragraph;
+ return url;
+}
 function downloadSchedule(name){if(window.Android&&Android.saveScheduleFile){Android.saveScheduleFile(name)}else{const a=document.createElement('a');a.href='./Fam%20App/app/src/main/assets/schedule/'+encodeURIComponent(name);a.download=name;document.body.appendChild(a);a.click();a.remove()}}
 function go(id){document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.screen===id));if(id==='people')renderMember()}
 function updateHome(s){let d=day(s)||DATA.days[0];chosen=d.date;let w=wolUrl(d.date);$('dailyDate').textContent=fmt(d.date);$('dailyReferenceLink').href=jwDailyUrl(d.date);$('dailyFallback').href=w;$('navDate').textContent=fmt(d.date);$('homeDate').textContent=names[d.day]+', '+fmt(d.date);$('homeRoles').innerHTML=`<div class="role"><label>CONDUCTOR</label><b>${esc(d.conductor||'—')}</b></div><div class="role"><label>DAILY TEXT READER</label><b>${esc(d.dailyTextReader||'—')}</b></div><div class="role"><label>COMMENTER</label><b>${esc(d.commenter||'—')}</b></div><div class="role"><label>BIBLE READER</label><b>${esc(d.bibleReader||'—')}</b></div>`;if(d.bibleReading&&jwBibleUrl(d.bibleReading)){$('homeBible').innerHTML=bibleLinks(d.bibleReading);$('bibleReaderLine').textContent='Reader: '+(d.bibleReader||'Not assigned');$('bibleFallback').href='https://wol.jw.org/tw/wol/s/r33/lp-tw?q='+encodeURIComponent(d.bibleReading);$('bibleFallback').style.display='inline-block'}else if(d.bibleReading){$('homeBible').textContent=d.bibleReading;$('bibleReaderLine').textContent='';$('bibleFallback').style.display='none'}else{$('homeBible').textContent='No assigned Bible reading for this day.';$('bibleReaderLine').textContent='';$('bibleFallback').style.display='none'}if(d.publicationReading){$('publicationBox').style.display='block';$('publicationText').innerHTML=`<a class="reference" href="${jwPublicationUrl(d.publicationReading)}" target="_blank" rel="noopener">${esc(d.publicationReading)}</a>`;$('publicationLink').href=jwPublicationUrl(d.publicationReading)}else{$('publicationBox').style.display='none'}}
