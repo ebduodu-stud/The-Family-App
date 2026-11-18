@@ -65,6 +65,33 @@ select{color:var(--ink)}
 .assignment-card .sectiontitle{margin:5px 0 13px}
 @media(max-width:380px){.daynav{grid-template-columns:34px minmax(0,1fr) 34px;gap:4px;padding:10px 6px}.daynav .dayarrow{width:32px;height:36px}.daynav .datepill{font-size:12px}}
 
+
+/* Appearance preferences */
+.top{background:linear-gradient(125deg,var(--navy),var(--blue))}
+body.dark{--ink:#e7edf2;--muted:#aab7c1;--line:#34434f;--bg:#111a22;--white:#1d2933;background:#111a22;color:var(--ink)}
+body.dark .card,body.dark .daynav,body.dark .nav{background:#1d2933;border-color:var(--line);color:var(--ink)}
+body.dark .daily{background:#29291f;border-color:#51482d}
+body.dark .daily h2,body.dark .sectiontitle,body.dark .daynav .datepill,body.dark .dailyhead a{color:var(--ink)}
+body.dark .daily p{color:#c1cbd2}
+body.dark .role,body.dark .reading{background:#25333e;border-color:#354652}
+body.dark .role b{color:var(--ink)}
+body.dark .role label{color:var(--muted)}
+body.dark .filecard{background:#1d2933;border-color:var(--line);color:var(--ink)}
+body.dark .filecard b,body.dark .reference{color:#a9d5ed}
+body.dark .fileicon,body.dark .daynav .dayarrow{background:#2a3b47;color:#dce8ef}
+body.dark .nav button{color:#aab7c0}
+body.dark .nav button.active{color:#fff}
+body.dark select,body.dark #member{background:#25333e!important;color:var(--ink)!important;border-color:#435461!important}
+body.dark .btn.light{background:#30414d;color:#e7edf2}
+.appearance-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.appearance-row:last-child{border-bottom:0}
+.appearance-label{font-size:14px;font-weight:700;color:var(--ink)}
+.appearance-help{font-size:12px;color:var(--muted);margin-top:3px}
+.appearance-switch{width:48px;height:28px;accent-color:var(--blue);flex:none}
+.accent-options{display:flex;gap:10px;flex-wrap:wrap;margin-top:13px}
+.accent-option{width:38px;height:38px;border:3px solid transparent;border-radius:50%;background:var(--swatch);cursor:pointer;box-shadow:inset 0 0 0 1px #00000018}
+.accent-option[aria-pressed="true"]{outline:2px solid var(--blue);outline-offset:3px}
+body.dark .appearance-label{color:var(--ink)}
 </style></head><body>
 <main class="wrap">
 <section id="home" class="screen active">
@@ -79,7 +106,21 @@ select{color:var(--ink)}
 <a class="filecard" href="#" onclick="downloadSchedule('Schedule_May-Jun2027.pdf');return false"><span class="fileicon">PDF</span><span><b>May – June 2027</b><small>Final schedule file currently available (two months) · Tap to save PDF</small></span></a>
 <p class="muted file-note" style="margin-top:14px">When a new schedule is prepared, add its PDF to the app and update the daily assignments for that period.</p></div></section>
 <section id="people" class="screen"><div class="card"><div class="eyebrow">Family</div><h2 class="sectiontitle">Personal Space</h2><h3 class="sectiontitle" style="font-size:17px;margin-top:10px">What am I doing for the family this week?</h3><p class="muted">Choose your name to see your assignments for today and the next seven days.</p><select id="member" style="width:100%;padding:11px;border:1px solid var(--line);border-radius:10px;background:white;font:inherit"><option value="">Choose a family member</option></select><div id="memberResults"></div></div></section>
-<section id="more" class="screen"><div class="card"><div class="eyebrow">About this app</div><h2 class="sectiontitle">Family Morning Worship</h2><p class="muted">A family schedule companion covering November 2026 through June 2027. Daily text, scripture and publication references link to official JW Library resources, with Watchtower ONLINE LIBRARY alternatives where provided. Internet access is required for online material.</p><p class="muted">The app displays the assigned Bible reader and the scripture reference, not the full Bible passage.</p><a class="btn light" href="https://wol.jw.org/tw/wol/h/r33/lp-tw" target="_blank" rel="noopener">Watchtower ONLINE LIBRARY</a></div></section>
+<section id="more" class="screen">
+ <div class="card">
+  <div class="eyebrow">Make it yours</div><h2 class="sectiontitle">Appearance</h2>
+  <div class="appearance-row"><div><div class="appearance-label">Dark mode</div><div class="appearance-help">Use a darker, low-light appearance.</div></div><input class="appearance-switch" id="darkModeToggle" type="checkbox" aria-label="Enable dark mode"></div>
+  <div class="appearance-row" style="display:block"><div class="appearance-label">Colour theme</div><div class="appearance-help">Choose the app’s main colour.</div><div class="accent-options" role="group" aria-label="Choose colour theme">
+   <button type="button" class="accent-option" data-accent="ocean" style="--swatch:linear-gradient(135deg,#17324d 50%,#285c78 50%)" aria-label="Ocean blue" aria-pressed="true"></button>
+   <button type="button" class="accent-option" data-accent="forest" style="--swatch:linear-gradient(135deg,#174b3b 50%,#37866a 50%)" aria-label="Forest green" aria-pressed="false"></button>
+   <button type="button" class="accent-option" data-accent="plum" style="--swatch:linear-gradient(135deg,#49305f 50%,#8060a0 50%)" aria-label="Plum purple" aria-pressed="false"></button>
+   <button type="button" class="accent-option" data-accent="burgundy" style="--swatch:linear-gradient(135deg,#642c3a 50%,#a45162 50%)" aria-label="Burgundy" aria-pressed="false"></button>
+   <button type="button" class="accent-option" data-accent="teal" style="--swatch:linear-gradient(135deg,#15505a 50%,#328b91 50%)" aria-label="Teal" aria-pressed="false"></button>
+   <button type="button" class="accent-option" data-accent="slate" style="--swatch:linear-gradient(135deg,#39434d 50%,#77838d 50%)" aria-label="Slate grey" aria-pressed="false"></button>
+  </div></div>
+ </div>
+ <div class="card"><div class="eyebrow">About this app</div><h2 class="sectiontitle">Family Morning Worship</h2><p class="muted">A family schedule companion covering November 2026 through June 2027. Daily text, scripture and publication references link to official JW Library resources, with Watchtower ONLINE LIBRARY alternatives where provided. Internet access is required for online material.</p><p class="muted">The app displays the assigned Bible reader and the scripture reference, not the full Bible passage.</p><a class="btn light" href="https://wol.jw.org/tw/wol/h/r33/lp-tw" target="_blank" rel="noopener">Watchtower ONLINE LIBRARY</a></div>
+</section>
 </main>
 <div id="profileGate" style="display:none;position:fixed;inset:0;background:#101820eF;z-index:30;align-items:center;justify-content:center;padding:22px"><div class="card" style="width:100%;max-width:420px;padding:22px"><div class="eyebrow">Family Morning Worship</div><h2 class="sectiontitle">Who is using the app?</h2><p class="muted">Choose your name. The app will remember this choice on this device until you change it.</p><select id="firstProfile" style="width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:white;font:inherit"><option value="">Choose your name</option></select><button class="btn" id="saveProfile" style="width:100%;margin-top:12px">Continue</button></div></div>
 <nav class="nav"><button class="active" data-screen="home" onclick="go('home')"><i>⌂</i>Home</button><button data-screen="files" onclick="go('files')"><i>▤</i>Schedule Files</button><button data-screen="people" onclick="go('people')"><i>♙</i>Personal Space</button><button data-screen="more" onclick="go('more')"><i>⋯</i>More</button></nav>
@@ -130,6 +171,24 @@ function go(id){
  if(id==='people')renderMember();
  if(alreadyHome){const t=localISO(new Date());updateHome(day(t)?t:DATA.days[0].date)}
 }
+const APPEARANCE={ocean:['#17324d','#285c78'],forest:['#174b3b','#37866a'],plum:['#49305f','#8060a0'],burgundy:['#642c3a','#a45162'],teal:['#15505a','#328b91'],slate:['#39434d','#77838d']};
+function applyAppearance(){
+ const dark=localStorage.getItem('familyMorningDark')==='true';
+ const saved=localStorage.getItem('familyMorningAccent');
+ const accent=APPEARANCE[saved]?saved:'ocean';
+ document.body.classList.toggle('dark',dark);
+ document.documentElement.style.setProperty('--navy',APPEARANCE[accent][0]);
+ document.documentElement.style.setProperty('--blue',APPEARANCE[accent][1]);
+ const toggle=$('darkModeToggle');if(toggle)toggle.checked=dark;
+ document.querySelectorAll('.accent-option').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.accent===accent)));
+}
+function initAppearance(){
+ const toggle=$('darkModeToggle');
+ if(toggle)toggle.addEventListener('change',()=>{localStorage.setItem('familyMorningDark',String(toggle.checked));applyAppearance()});
+ document.querySelectorAll('.accent-option').forEach(b=>b.addEventListener('click',()=>{localStorage.setItem('familyMorningAccent',b.dataset.accent);applyAppearance()}));
+ applyAppearance();
+}
+initAppearance();
 function updateHome(s){let d=day(s)||DATA.days[0];chosen=d.date;let w=wolUrl(d.date);$('dailyReferenceLink').href=jwDailyUrl(d.date);$('dailyFallback').href=w;$('navDate').textContent=names[d.day]+', '+fmt(d.date);$('homeRoles').innerHTML=`<div class="role"><label>CONDUCTOR</label><b>${esc(d.conductor||'—')}</b></div><div class="role"><label>DAILY TEXT READER</label><b>${esc(d.dailyTextReader||'—')}</b></div><div class="role"><label>COMMENTER</label><b>${esc(d.commenter||'—')}</b></div><div class="role"><label>BIBLE READER</label><b>${esc(d.bibleReader||'—')}</b></div>`;if(d.bibleReading&&jwBibleUrl(d.bibleReading)){$('homeBible').innerHTML=bibleLinks(d.bibleReading);$('bibleReaderLine').textContent='Reader: '+(d.bibleReader||'Not assigned');$('bibleFallback').href='https://wol.jw.org/tw/wol/s/r33/lp-tw?q='+encodeURIComponent(d.bibleReading);$('bibleFallback').style.display='inline-block'}else if(d.bibleReading){$('homeBible').textContent=d.bibleReading;$('bibleReaderLine').textContent='';$('bibleFallback').style.display='none'}else{$('homeBible').textContent='No assigned Bible reading for this day.';$('bibleReaderLine').textContent='';$('bibleFallback').style.display='none'}if(d.publicationReading){$('publicationBox').style.display='block';$('publicationText').innerHTML=`<a class="reference" href="${jwPublicationUrl(d.publicationReading)}" target="_blank" rel="noopener">${esc(d.publicationReading)}</a>`;$('publicationLink').href=jwPublicationUrl(d.publicationReading)}else{$('publicationBox').style.display='none'}}
 function moveDay(n){let i=DATA.days.findIndex(d=>d.date===chosen),next=DATA.days[i+n];if(next)updateHome(next.date)}
 function localISO(x){let y=x.getFullYear(),m=String(x.getMonth()+1).padStart(2,'0'),d=String(x.getDate()).padStart(2,'0');return y+'-'+m+'-'+d}
