@@ -87,18 +87,18 @@ function bibleLinks(ref){
 function jwDailyUrl(s){let date=s.replaceAll('-','');return `https://www.jw.org/finder?srcid=jwlshare&alias=daily-text&date=${date}&wtlocale=TW`}
 function jwPublicationUrl(reading, person){
  const source=String(reading||'');
- const chapterMatch=source.match(/Ch[.] *([0-9]+)/i);
- const chapter=chapterMatch?Number(chapterMatch[1]):1;
+ const header=source.match(/Ch[.] *([0-9]+)(?:\s*[–-]\s*([0-9]+))?/i);
+ const firstChapter=header?Number(header[1]):1;
+ const lastChapter=header&&header[2]?Number(header[2]):firstChapter;
+ const segment=person?source.split(';').map(x=>x.trim()).find(x=>x.startsWith(person+' —')||x.startsWith(person+' –')||x.startsWith(person+' -')):null;
+ const match=segment&&segment.match(/¶\s*(\d+)/);
+ const paragraph=match?Number(match[1]):null;
+ const lastParagraph={2:11,3:15,4:15,5:57,6:15,7:31,8:38,9:47,10:13};
+ let chapter=firstChapter;
+ if(paragraph!==null&&lastChapter>firstChapter&&paragraph<=(lastParagraph[firstChapter]||0)) chapter=firstChapter;
+ else if(paragraph!==null&&lastChapter>firstChapter) chapter=lastChapter;
  const docid=1102014930+chapter;
- let paragraph=null;
- if(person){
-  const segment=source.split(';').map(x=>x.trim()).find(x=>x.startsWith(person+' —')||x.startsWith(person+' –')||x.startsWith(person+' -'));
-  const match=segment&&segment.match(/¶\s*(\d+)/);
-  if(match) paragraph=Number(match[1])+3;
- }
- let url='https://www.jw.org/finder?srcid=jwlshare&wtlocale=TW&prefer=lang&docid='+docid;
- if(paragraph!==null) url+='&par='+paragraph;
- return url;
+ return 'https://www.jw.org/finder?srcid=jwlshare&wtlocale=TW&prefer=lang&docid='+docid;
 }
 function downloadSchedule(name){if(window.Android&&Android.saveScheduleFile){Android.saveScheduleFile(name)}else{const a=document.createElement('a');a.href='./Fam%20App/app/src/main/assets/schedule/'+encodeURIComponent(name);a.download=name;document.body.appendChild(a);a.click();a.remove()}}
 function go(id){document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.nav button').forEach(x=>x.classList.toggle('active',x.dataset.screen===id));if(id==='people')renderMember()}
