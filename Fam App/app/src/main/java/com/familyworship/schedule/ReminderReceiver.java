@@ -38,6 +38,9 @@ public class ReminderReceiver extends BroadcastReceiver {
         SharedPreferences prefs = context.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String profile = prefs.getString("profile", "");
         String raw = prefs.getString("schedule", "[]");
+        String reminderTime = prefs.getString("reminderTime", "03:00");
+        int reminderHour = 3, reminderMinute = 0;
+        try { String[] timeParts = reminderTime.split(":"); reminderHour = Integer.parseInt(timeParts[0]); reminderMinute = Integer.parseInt(timeParts[1]); if (reminderHour < 0 || reminderHour > 23 || reminderMinute < 0 || reminderMinute > 59) throw new Exception("Invalid reminder time"); } catch (Exception ignored) { reminderHour = 3; reminderMinute = 0; }
         if (profile.isEmpty()) return;
         try {
             JSONArray entries = new JSONArray(raw);
@@ -53,7 +56,7 @@ public class ReminderReceiver extends BroadcastReceiver {
                 if (date.compareTo(today) < 0) continue;
                 Calendar alarm = Calendar.getInstance(ghana);
                 String[] bits = date.split("-");
-                alarm.set(Integer.parseInt(bits[0]), Integer.parseInt(bits[1]) - 1, Integer.parseInt(bits[2]), 3, 0, 0);
+                alarm.set(Integer.parseInt(bits[0]), Integer.parseInt(bits[1]) - 1, Integer.parseInt(bits[2]), reminderHour, reminderMinute, 0);
                 alarm.set(Calendar.MILLISECOND, 0);
                 if (alarm.getTimeInMillis() <= now.getTimeInMillis()) continue;
                 next = item;
@@ -65,9 +68,9 @@ public class ReminderReceiver extends BroadcastReceiver {
             alarms.cancel(pending);
             if (next != null) {
                 String date = next.optString("date");
-                Calendar alarm = Calendar.getInstance();
+                Calendar alarm = Calendar.getInstance(ghana);
                 String[] bits = date.split("-");
-                alarm.set(Integer.parseInt(bits[0]), Integer.parseInt(bits[1]) - 1, Integer.parseInt(bits[2]), 3, 0, 0);
+                alarm.set(Integer.parseInt(bits[0]), Integer.parseInt(bits[1]) - 1, Integer.parseInt(bits[2]), reminderHour, reminderMinute, 0);
                 alarm.set(Calendar.MILLISECOND, 0);
                 alarms.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarm.getTimeInMillis(), pending);
             }
