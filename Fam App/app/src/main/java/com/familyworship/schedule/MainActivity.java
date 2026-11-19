@@ -1,6 +1,8 @@
 package com.familyworship.schedule;
 
 import android.app.Activity;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.os.Bundle;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -28,6 +30,7 @@ public class MainActivity extends Activity {
     WebView web;
     private boolean localFallbackLoaded = false;
     private boolean pendingReminderSetup = false;
+    private boolean pendingTestNotification = false;
 
     @Override public void onCreate(Bundle b) {
         super.onCreate(b);
@@ -87,7 +90,9 @@ public class MainActivity extends Activity {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 ReminderReceiver.scheduleNext(this);
                 Toast.makeText(this, "Your personal reading reminders are enabled.", Toast.LENGTH_LONG).show();
+                if (pendingTestNotification) showTestNotification();
             } else {
+                pendingTestNotification = false;
                 Toast.makeText(this, "Notifications are off. You can enable them in Android Settings.", Toast.LENGTH_LONG).show();
             }
         }
@@ -121,6 +126,59 @@ public class MainActivity extends Activity {
             prefs.edit().putString("profile", profile).putString("schedule", scheduleJson).putString("reminderTime", reminderTime).apply();
             runOnUiThread(() -> requestOrScheduleReminders());
         }
+        @JavascriptInterface public void sendTestReminder() {
+            runOnUiThread(() -> {
+                if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                    pendingTestNotification = true;
+                    requestOrScheduleReminders();
+                } else showTestNotification();
+            });
+        }
+
+        @JavascriptInterface public void openNotificationSettings() {
+            runOnUiThread(() -> {
+                Intent settingsIntent = new Intent();
+                if (Build.VERSION.SDK_INT >= 26) {
+                    settingsIntent.setAction("android.settings.APP_NOTIFICATION_SETTINGS");
+                    settingsIntent.putExtra("android.provider.extra.APP_PACKAGE", getPackageName());
+                    settingsIntent.putExtra("android.provider.extra.CHANNEL_ID", "family_reading");
+                } else {
+                    settingsIntent.setAction("android.settings.APPLICATION_DETAILS_SETTINGS");
+                    settingsIntent.setData(Uri.parse("package:" + getPackageName()));
+                }
+                try { startActivity(settingsIntent); }
+                catch (Exception e) { Toast.makeText(MainActivity.this, "Could not open notification settings.", Toast.LENGTH_SHORT).show(); }
+            });
+        }
+
+    }
+
+    private void showTestNotification() {
+        pendingTestNotification = false;
+        if (Build.VERSION.SDK_INT >= 33 && checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this, "Allow notifications for this app first.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= 26) ReminderReceiver.createChannel(this);
+        NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if (!manager.areNotificationsEnabled()) {
+            Toast.makeText(this, "Notifications are blocked for this app. Open Notification settings and allow them.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (Build.VERSION.SDK_INT >= 26) {
+            android.app.NotificationChannel channel = manager.getNotificationChannel("family_reading");
+            if (channel != null && channel.getImportance() == NotificationManager.IMPORTANCE_NONE) {
+                Toast.makeText(this, "The Reading reminders channel is turned off. Enable it in Notification settings.", Toast.LENGTH_LONG).show();
+                return;
+            }
+        }
+        Notification notification = new Notification.Builder(this, Build.VERSION.SDK_INT >= 26 ? "family_reading" : "")
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle("Family Morning Worship")
+            .setContentText("Test notification: your reminders are working.")
+            .setAutoCancel(true).build();
+        manager.notify(3499, notification);
+        Toast.makeText(this, "Test notification sent. Check your notification shade.", Toast.LENGTH_LONG).show();
     }
 
     @Override public void onBackPressed() {
