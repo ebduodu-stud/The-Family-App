@@ -172,7 +172,10 @@ public class MainActivity extends Activity {
                 return;
             }
         }
-        Notification notification = new Notification.Builder(this, Build.VERSION.SDK_INT >= 26 ? "family_reading" : "")
+        Notification.Builder builder = Build.VERSION.SDK_INT >= 26
+            ? new Notification.Builder(this, "family_reading")
+            : new Notification.Builder(this);
+        Notification notification = builder
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle("Family Morning Worship")
             .setContentText("Test notification: your reminders are working.")
