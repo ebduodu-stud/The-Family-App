@@ -77,7 +77,6 @@ public class MainActivity extends Activity {
             requestPermissions(new String[]{Manifest.permission.POST_NOTIFICATIONS}, NOTIFICATION_PERMISSION_REQUEST);
         } else {
             ReminderReceiver.scheduleNext(this);
-            Toast.makeText(this, "Your 3:00 a.m. reading reminders are set for this profile.", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -87,7 +86,7 @@ public class MainActivity extends Activity {
             pendingReminderSetup = false;
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 ReminderReceiver.scheduleNext(this);
-                Toast.makeText(this, "Your 3:00 a.m. reading reminders are enabled.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Your personal reading reminders are enabled.", Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, "Notifications are off. You can enable them in Android Settings.", Toast.LENGTH_LONG).show();
             }
@@ -117,9 +116,9 @@ public class MainActivity extends Activity {
             }).start();
         }
 
-        @JavascriptInterface public void setReadingReminders(String profile, String scheduleJson) {
+        @JavascriptInterface public void setReadingReminders(String profile, String scheduleJson, String reminderTime) {
             SharedPreferences prefs = getSharedPreferences(ReminderReceiver.PREFS, MODE_PRIVATE);
-            prefs.edit().putString("profile", profile).putString("schedule", scheduleJson).apply();
+            prefs.edit().putString("profile", profile).putString("schedule", scheduleJson).putString("reminderTime", reminderTime).apply();
             runOnUiThread(() -> requestOrScheduleReminders());
         }
     }
