@@ -92,7 +92,7 @@ body.dark .btn.light{background:#30414d;color:#e7edf2}
 .accent-option{width:38px;height:38px;border:3px solid transparent;border-radius:50%;background:var(--swatch);cursor:pointer;box-shadow:inset 0 0 0 1px #00000018}
 .accent-option[aria-pressed="true"]{outline:2px solid var(--blue);outline-offset:3px}
 body.dark .appearance-label{color:var(--ink)}
-</style></head><body>
+#reminderTime{color-scheme:light}body.dark #reminderTime{background:#25333e!important;color:#e7edf2!important;border-color:#435461!important;color-scheme:dark}</style></head><body>
 <main class="wrap">
 <section id="home" class="screen active">
  <header class="top"><div class="hero-inner"><span class="hero-kicker">OUR FAMILY • OUR WORSHIP</span><h1>Morning Worship Arrangement</h1><p>Preparing together, one day at a time.</p></div></header>
@@ -118,6 +118,16 @@ body.dark .appearance-label{color:var(--ink)}
    <button type="button" class="accent-option" data-accent="teal" style="--swatch:linear-gradient(135deg,#15505a 50%,#328b91 50%)" aria-label="Teal" aria-pressed="false"></button>
    <button type="button" class="accent-option" data-accent="slate" style="--swatch:linear-gradient(135deg,#39434d 50%,#77838d 50%)" aria-label="Slate grey" aria-pressed="false"></button>
   </div></div>
+ </div>
+ <div class="card" id="personalReminderCard">
+  <div class="eyebrow">Your schedule</div><h2 class="sectiontitle">Personal reminder</h2>
+  <p class="muted">Choose when you would like a notification on days you have a reading assignment. This time is saved separately for each family profile on this device.</p>
+  <label for="reminderTime" class="appearance-label">Remind me at</label>
+  <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px">
+   <input id="reminderTime" type="time" value="03:00" style="font:inherit;font-size:16px;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--white);color:var(--ink);min-width:130px">
+   <button type="button" class="btn" id="saveReminderTime">Save reminder time</button>
+  </div>
+  <p class="muted" id="reminderSaveStatus" aria-live="polite">Default reminder time: 3:00 a.m.</p>
  </div>
  <div class="card"><div class="eyebrow">About this app</div><h2 class="sectiontitle">Family Morning Worship</h2><p class="muted">A family schedule companion covering November 2026 through June 2027. Daily text, scripture and publication references link to official JW Library resources, with Watchtower ONLINE LIBRARY alternatives where provided. Internet access is required for online material.</p><p class="muted">The app displays the assigned Bible reader and the scripture reference, not the full Bible passage.</p><a class="btn light" href="https://wol.jw.org/tw/wol/h/r33/lp-tw" target="_blank" rel="noopener">Watchtower ONLINE LIBRARY</a></div>
 </section>
@@ -225,6 +235,8 @@ $('prevDay').onclick=()=>moveDay(-1);$('nextDay').onclick=()=>moveDay(1);
 $('member').onchange=()=>{if($('member').value)localStorage.setItem('familyMorningProfile',$('member').value);renderMember();syncReadingReminders()};
 function syncReadingReminders(){
  const profile=localStorage.getItem('familyMorningProfile')||'';
+ const reminderTime=localStorage.getItem('familyMorningReminderTime_'+profile)||'03:00';
+ const timeInput=$('reminderTime');if(timeInput&&document.activeElement!==timeInput)timeInput.value=reminderTime;
  if(!profile||!window.Android||!Android.setReadingReminders)return;
  const today=localISO(new Date());
  const upcoming=DATA.days.filter(d=>d.date>=today).map(d=>{
@@ -237,7 +249,19 @@ function syncReadingReminders(){
   }
   return parts.length?{date:d.date,parts:parts.join(' · ')}:null;
  }).filter(Boolean);
- Android.setReadingReminders(profile,JSON.stringify(upcoming));
+ Android.setReadingReminders(profile,JSON.stringify(upcoming),reminderTime);
+}
+const reminderTimeInput=$('reminderTime');
+if(reminderTimeInput){
+ reminderTimeInput.addEventListener('change',()=>{$('reminderSaveStatus').textContent='Remember to save your chosen time.';});
+ $('saveReminderTime').addEventListener('click',()=>{
+  const profile=localStorage.getItem('familyMorningProfile')||'';
+  if(!profile){$('reminderSaveStatus').textContent='Choose your profile first.';return;}
+  const time=reminderTimeInput.value||'03:00';
+  localStorage.setItem('familyMorningReminderTime_'+profile,time);
+  $('reminderSaveStatus').textContent='Your reminder time is saved for '+profile+'.';
+  syncReadingReminders();
+ });
 }
 syncReadingReminders();
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
