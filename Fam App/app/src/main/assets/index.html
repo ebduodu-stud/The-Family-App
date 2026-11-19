@@ -269,5 +269,16 @@ if(reminderTimeInput){
   syncReadingReminders();
  });
 }
+
+const UPDATE_VERSION='2.4';let updateStep=0;
+function showUpdateStep(n){const steps=[...document.querySelectorAll('.update-step')],dots=[...document.querySelectorAll('.update-dot')];updateStep=Math.max(0,Math.min(n,steps.length-1));steps.forEach((x,i)=>x.classList.toggle('active',i===updateStep));dots.forEach((x,i)=>x.classList.toggle('active',i<=updateStep));$('updateBack').style.display=updateStep===0?'none':'inline-block';$('updateNext').textContent=updateStep===steps.length-1?'Finish':'Next';}
+function openUpdateGuide(){showUpdateStep(0);$('updateModal').classList.add('open');}
+function closeUpdateGuide(){$('updateModal').classList.remove('open');localStorage.setItem('familyMorningSeenUpdate',UPDATE_VERSION);}
+$('openWhatsNew').addEventListener('click',openUpdateGuide);
+$('updateNext').addEventListener('click',()=>{if(updateStep===2)closeUpdateGuide();else showUpdateStep(updateStep+1)});
+$('updateBack').addEventListener('click',()=>showUpdateStep(updateStep-1));
+$('updateSkip').addEventListener('click',closeUpdateGuide);
+$('updateModal').addEventListener('click',e=>{if(e.target===$('updateModal'))closeUpdateGuide()});
+if(localStorage.getItem('familyMorningSeenUpdate')!==UPDATE_VERSION)openUpdateGuide();
 syncReadingReminders();
 </script></body></html>
