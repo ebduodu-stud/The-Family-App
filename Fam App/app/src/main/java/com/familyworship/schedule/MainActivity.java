@@ -177,7 +177,7 @@ public class MainActivity extends Activity {
             : new Notification.Builder(this);
         Notification notification = builder
             .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle("Family Morning Worship")
+            .setContentTitle("The Family’s App")
             .setContentText("Test notification: your reminders are working.")
             .setAutoCancel(true).build();
         manager.notify(3499, notification);
