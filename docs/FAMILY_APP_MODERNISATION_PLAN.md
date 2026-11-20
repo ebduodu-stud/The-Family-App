@@ -68,3 +68,32 @@ This is an initial Library interface, not yet a live shared Drive Library. Categ
 ## Current status
 
 First interface phase committed; web deployment and signed Android build are being generated. No Google account has been connected, no Drive folder has been configured, and no live upload or synchronisation feature is active.
+
+
+## Phase 2 — private shared Library access (decision confirmed)
+
+The family selected the private-access option:
+
+- Family members enter one shared family access code; the app remembers the authorised device locally.
+- Family access is read-only: list categories and published documents, open and download items.
+- Administrators authenticate with their own authorised Google accounts for publishing and management.
+- The Google Drive storage folder remains private. The app must not make files public-by-link merely to make them viewable.
+- The family access code is stored only as a secure verifier on the server, not embedded in website or Android source. Use rate limiting and a revocable session token after code verification.
+- Administrator authorisation must be checked server-side against an allowlist of Google account email addresses. Do not rely on a hidden button or client-side role flag.
+- The public read API and administrator management interface must be separate permission paths. No Drive OAuth token, refresh token, or service credential may reach the client.
+- The catalogue is data-driven: category records and document records include stable IDs, category codes, revision/version, status, timestamps, and Drive file IDs. Replacing a document increments its revision while preserving its logical ID.
+- The app refreshes the catalogue on launch and on user request; it must retain a clear offline/last-synced state if the service is unavailable.
+
+### Proposed implementation approach
+
+Use a server-side Google Apps Script integration as the initial cost-conscious broker to a private Drive folder. A public, read-only family endpoint validates the family code and returns catalogue data; document downloads are mediated by the server rather than exposing a public Drive permission. A separate administrator interface requires Google sign-in and server-side email allowlisting. Deployments, scopes, quotas, file-size limits, and cross-origin behaviour must be tested before production use. If Apps Script cannot safely and reliably proxy the family's actual document sizes, move the broker to a server-side hosting service rather than making the Drive folder public.
+
+### Configuration still required
+
+- A Google account selected to own the Drive folder and Apps Script project.
+- A private Drive folder for the Library (folder ID configured server-side only).
+- The administrator Google account email address(es) to allowlist.
+- A family access code to be set securely during setup; do not commit it to GitHub or send it in chat.
+- Test uploads and downloads, including a PDF, from both the web app and Android app before enabling live Library synchronisation.
+
+No Google account, Drive folder, administrator list, or family code has been configured yet. The live connection remains disabled until setup and security testing are complete.
