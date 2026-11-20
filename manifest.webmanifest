@@ -1,8 +1,8 @@
 {
   "id": "/The-Family-App/",
-  "name": "Family Morning Worship",
-  "short_name": "Family Worship",
-  "description": "A family schedule companion for daily worship assignments.",
+  "name": "The Family’s App",
+  "short_name": "Family App",
+  "description": "A shared family space for announcements, news, photographs, arrangements and schedules.",
   "start_url": "/The-Family-App/",
   "scope": "/The-Family-App/",
   "display": "standalone",
