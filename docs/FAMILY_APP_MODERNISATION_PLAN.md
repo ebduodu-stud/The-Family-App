@@ -38,11 +38,12 @@ IDs should be unique and stable. Replacing a document should retain its logical 
 - The final integration must use a secure administrator authorisation path and a safe read-only catalogue for family members.
 - Google Drive is the planned storage provider; Firebase is not part of the agreed design.
 - The exact Google Drive integration method, folder permissions, administrator sign-in, and catalogue mechanism must be selected and tested before enabling live uploads.
+- Library categories should be data-driven rather than hard-coded, so an authorised administrator can add a category later, assign its short code, and have it appear in the app after refresh.
 - Do not remove or replace the existing schedule data or offline fallback as part of the initial planning work.
 
 ## Pending decisions
 
-- Final list and order of Library sections.
+- Final order of the four initial Library sections; future additions should be supported dynamically by category metadata.
 - Whether administrators can be more than one person.
 - Whether each section displays the newest item prominently on the home screen.
 - Whether announcements should be shown as text posts, attached files, or both.
