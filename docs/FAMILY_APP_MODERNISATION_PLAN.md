@@ -50,6 +50,21 @@ IDs should be unique and stable. Replacing a document should retain its logical 
 - Rules for archiving and deleting older documents.
 - Final file ID/revision format and administrator workflow.
 
+## Implementation progress — first phase
+
+The first interface implementation has now been committed:
+
+- Website title, PWA name, Android launcher label, and main home heading changed to **The Family’s App**.
+- The existing Android application ID and namespace remain unchanged to preserve upgrade compatibility.
+- The former Schedule Files screen is now a Library with the four initial category cards and category codes.
+- The three existing Morning Worship PDF schedules are listed under MWA with stable example IDs.
+- FWA, CR, and OP have ready category pages with clear empty states.
+- The About section describes the broader family purpose.
+- The introduction/tutorial includes the new Library.
+- Existing Morning Worship assignments, personal profiles, reminders, links, and offline fallback are retained.
+
+This is an initial Library interface, not yet a live shared Drive Library. Category cards and existing schedule files are currently app data; family-wide publishing, dynamic category management, administrator sign-in, and automatic catalogue refresh are still pending.
+
 ## Current status
 
-Planning foundation only. No Google account has been connected, no Drive folder has been configured, and no live upload or synchronisation feature is active.
+First interface phase committed; web deployment and signed Android build are being generated. No Google account has been connected, no Drive folder has been configured, and no live upload or synchronisation feature is active.
